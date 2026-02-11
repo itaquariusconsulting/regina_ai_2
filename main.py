@@ -131,6 +131,34 @@ async def obtener_usuarios_api(
         response.raise_for_status()
         return response.json()
 
+async def crear_usuario_api(
+    dto: regina_wrapper_reg_sec_user
+):
+
+    url = (
+        f"{API_URL_SEC}"
+        f"usuario/listar/"
+        f"{dto.codEmpresa}/"
+        f"{dto.codSucursal}/"
+    )
+
+    print("URL construida en obtener_usuarios_api:", url)
+
+    # 👉 igual que en Angular: se usa el token ya existente
+    api_token = dto.authToken
+    if not api_token:
+        raise Exception("authToken no enviado en el DTO")
+
+    headers = {
+        "Authorization": f"Bearer {api_token}",
+        "Content-Type": "application/json"
+    }
+
+    async with httpx.AsyncClient(timeout=30, verify=False) as client:
+        response = await client.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+
 
 # -------------------------------
 # Endpoint /chat
@@ -167,7 +195,18 @@ async def chat(usuario: regina_reg_sec_user_dto.WrapperRegSecUser):
                     "respuesta": "Lista de usuarios obtenida correctamente",
                     "data": data
                 }
-
+            case _ if ("crear usuario" in texto) or ("crear un nuevo usuario" in texto):
+                if(usuario.isAdmin=="A"):
+                    return {
+                        "tipo": "usuario_true",
+                        "respuesta": "Correcto, vamos a crear un Nuevo Usuario"
+                    }
+                else:
+                    return {
+                        "tipo": "usuario_false",
+                        "respuesta": "No tienes permiso para crear un nuevo usuario"
+                    }
+                
             case _:
                 return {
                     "tipo": "texto",
