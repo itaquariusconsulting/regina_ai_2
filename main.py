@@ -169,7 +169,6 @@ async def chat(usuario: regina_reg_sec_user_dto.WrapperRegSecUser):
     texto = (usuario.mensaje or "").strip().lower()
 
     try:
-
         match True:
 
             case _ if ("ordenes de pago" in texto) or ("órdenes de pago" in texto) or ("ordenes" in texto) or ("órdenes" in texto):
